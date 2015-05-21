@@ -1,0 +1,6 @@
+[DEFAULT]
+delete=1
+
+[queue1]
+filter=(directory1|directory2).*?\.(mpg|mp4)$
+destpath=/path/on/remote/host
