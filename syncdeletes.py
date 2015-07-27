@@ -69,13 +69,18 @@ def main():
 	recordings = []
 	activeRecordings = []
 	activeJobs = []
-	newDeleteList = []
+	newExpireList = []
 	mythrecordings = db.searchRecorded()
 	recorderList = be.getRecorderList()
 	for mrec in mythrecordings:
 		logging.debug(mrec)
 		rec = recording(mrec)
 		recordings.append(rec)
+
+		' skip items already set to autoexpire '
+		if (rec.mythrec.autoexpire == 1):
+			logging.debug(" - already set to expire, skip")
+			continue
 
 		' loop through the list of library items looking for matching recordings, linking them '
 		for l in listings:
@@ -111,11 +116,13 @@ def main():
 		if (rec.state != RecordingState.Recorded):
 			continue
 
-		' potentially add to delete list, and delete orphaned recordings '
+		' potentially add to auto-expire list, and set orphaned recordings to auto-expire '
 		if (rec.lib_listing == None) and (rec.state == RecordingState.Recorded):
-			logging.debug(" - no link, delete")
-			newDeleteList.append(rec)
-			rec.mythrec.delete(force=True, rerecord=False)
+			logging.debug(" - no link, auto-expire")
+			newExpireList.append(rec)
+			# rec.mythrec.delete(force=True, rerecord=False)
+			rec.mythrec.autoexpire = 1
+			rec.mythrec.update()
 
 	' log summary '
 	logging.info("")
@@ -130,8 +137,8 @@ def main():
 
 	logging.info("")
 	logging.info(" [Mythical Links][%s]" % len(listings))
-	logging.info("  - new delete items: %s" % len(newDeleteList))
-	for d in newDeleteList:
+	logging.info("  - new auto-expire items: %s" % len(newExpireList))
+	for d in newExpireList:
 		logging.info( "   - %s" % d.program)
 
 if __name__ == '__main__':
