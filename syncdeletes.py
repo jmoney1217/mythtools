@@ -130,10 +130,10 @@ def main():
 	logging.info(" [MythDB Recordings][%s]" % len(recordings))
 	logging.info("  - active recordings: %s" % len(activeRecordings))
 	for arec in activeRecordings:
-		logging.info("   - %s" % arec.program)
+		logging.info("   - %s [%s]" % (arec.program, arec.metadata.filename))
 	logging.info("  - in progress jobs: %s" % len(activeJobs))
 	for ajobs in activeJobs:
-		logging.info("   - %s" % ajobs.program)
+		logging.info("   - %s [%s]" % (ajobs.program, ajobs.metadata.filename))
 
 	logging.info("")
 	logging.info(" [Mythical Links][%s]" % len(listings))
