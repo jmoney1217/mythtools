@@ -70,6 +70,10 @@ def runjob(jobid=None, chanid=None, starttime=None):
     print "Infile: %s" % infile
     print "Outfile: %s" % outfile
 
+    if os.path.splitext(infile)[1] == '.mp4':
+        print 'Infile is already mp4! Dont do anything!'
+        sys.exit(0)
+
     # reformat 'starttime' for use with mythtranscode/ffmpeg/mythcommflag
     starttime = str(rec.starttime.utcisoformat().replace(u':', '').replace(u' ', '').replace(u'T', '').replace('-', ''))
 
