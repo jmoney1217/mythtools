@@ -123,6 +123,9 @@ def runjob(jobid=None, chanid=None, starttime=None):
             job.update({'status':304, 'comment':'Transcoding to mp4 failed'})
         sys.exit(e.retcode)
 
+    if not os.path.isfile(outfile):
+        print 'Error: Transcoded file (%s) not found!' % outfile
+        sys.exit(2)
     print 'Done transcoding'
 
     rec.basename = os.path.basename(outfile)
