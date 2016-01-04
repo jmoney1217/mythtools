@@ -79,6 +79,7 @@ def runjob(jobid=None, chanid=None, starttime=None):
 
     # Lossless transcode to strip cutlist
     if rec.cutlist == 1:
+	print 'Removing cutlist...'
         if jobid:
             job.update({'status':4, 'comment':'Removing Cutlist'})
 
@@ -91,11 +92,13 @@ def runjob(jobid=None, chanid=None, starttime=None):
                           '-o "%s"' % tmpfile,
                           '2> /dev/null')
         except MythError, e:
-            print 'Command failed with output:\n%s' % e.stderr
+            print 'Removing cutlist failure: Command failed with output:\n%s' % e.stderr
             if jobid:
                 job.update({'status':304, 'comment':'Removing Cutlist failed'})
             sys.exit(e.retcode)
+	print 'Removing cutlist...done'
     else:
+	print 'No cutlist found, skipping'
         tmpfile = infile
         # copyfile('%s' % infile, '%s' % tmpfile)
 
@@ -105,6 +108,7 @@ def runjob(jobid=None, chanid=None, starttime=None):
 
     task = System(path=transcoder, db=db)
     try:
+	print 'Transcoding...'
         output = task('-v',
                       '-q 20.0',
                       '-e x264',
@@ -118,15 +122,15 @@ def runjob(jobid=None, chanid=None, starttime=None):
                       '-4',
                       '--optimize 2 >> "%s"' % trans_log_file)
     except MythError, e:
-        print 'Command failed with output:\n%s' % e.stderr
+        print 'Error: Command failed with output:\n%s' % e.stderr
         if jobid:
             job.update({'status':304, 'comment':'Transcoding to mp4 failed'})
         sys.exit(e.retcode)
+    print 'Transcoding...done'
 
     if not os.path.isfile(outfile):
         print 'Error: Transcoded file (%s) not found!' % outfile
         sys.exit(2)
-    print 'Done transcoding'
 
     rec.basename = os.path.basename(outfile)
     try:
@@ -152,10 +156,10 @@ def runjob(jobid=None, chanid=None, starttime=None):
     rec.transcoded = 1
     rec.seek.clean()
 
-    print 'Changed recording basename, set transcoded...'
+    print 'Changed recording basename, set transcoded'
 
     if flush_commskip:
-        print 'Flushing commskip list...'
+        print 'Flushing commskip list'
         for index,mark in reversed(list(enumerate(rec.markup))):
             if mark.type in (rec.markup.MARK_COMM_START, rec.markup.MARK_COMM_END):
                 del rec.markup[index]
@@ -163,21 +167,22 @@ def runjob(jobid=None, chanid=None, starttime=None):
         rec.cutlist = 0
         rec.markup.commit()
 
-    print 'Updating recording...'
+    print 'Updating recording in MythTV DB'
     rec.update()
 
     if jobid:
         job.update({'status':4, 'comment':'Rebuilding seektable'})
 
     if build_seektable:
-        print 'Rebuilding seek table'
+        print 'Rebuilding seek table...'
         task = System(path='mythcommflag')
         task.command('--chanid %s' % chanid,
                      '--starttime %s' % starttime,
                      '--rebuild',
                      '> "%s"' % commflag_log_file)
+	print 'Rebuilding seek table...done'
 
-    print 'Job Done!...'
+    print 'Job Done!'
     if jobid:
         job.update({'status':272, 'comment':'Transcode Completed'})
 
@@ -204,7 +209,7 @@ def main():
     elif opts.chanid and opts.starttime:
         runjob(chanid=opts.chanid, starttime=opts.starttime)
     else:
-        print 'Script must be provided jobid, or chanid and starttime.'
+        print 'Script must be provided jobid, or chanid and starttime'
         sys.exit(1)
 
 if __name__ == '__main__':
