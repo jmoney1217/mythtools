@@ -109,18 +109,29 @@ def runjob(jobid=None, chanid=None, starttime=None):
     task = System(path=transcoder, db=db)
     try:
 	print 'Transcoding...'
-        output = task('-v',
-                      '-q 20.0',
-                      '-e x264',
-                      '-r 25',
+        output = task('--verbose',
+                      '--format mp4',
+                      '--encoder x264',
+                      '--quality 20.0',
+                      '--decomb',
                       '--crop 0:0:0:0',
-                      '-d',
-                      '-m',
-                      '-x b-adapt=2:rc-lookahead=50:ref=3:bframes=3:me=umh:subme=8:trellis=1:merange=20:direct=auto',
-                      '-i "%s"' % tmpfile,
-                      '-o "%s"' % outfile,
-                      '-4',
-                      '--optimize 2 >> "%s"' % trans_log_file)
+                      '--x264-preset medium',
+                      '--h264-profile high',
+                      '--h264-level 4.2',
+                      '--audio 1,1',
+                      '--aencoder copy:ac3,ffaac',
+                      '--ab 192,192',
+                      '--mixdown none,dpl2',
+                      '--arate Auto,Auto',
+                      '--drc 0.0,0.0',
+                      '--audio-copy-mask aac,ac3,dtshd,dts,mp3',
+                      '--audio-fallback ffac3',
+                      '--markers',
+                      '--large-file',
+                      '--optimize',
+                      '--input "%s"' % tmpfile,
+                      '--output "%s"' % outfile,
+                      '>> "%s" 2>&1' % trans_log_file)
     except MythError, e:
         print 'Error: Command failed with output:\n%s' % e.stderr
         if jobid:
