@@ -67,6 +67,7 @@ def runjob(jobid=None, chanid=None, starttime=None):
     tmpfile = '%s.tmp' % infile.rsplit('.',1)[0]
     outfile = '%s.mp4' % infile.rsplit('.',1)[0]
 
+    print 'jobid[%s] chanid[%s] starttime[%s]' % (jobid, chanid, starttime)
     print "Infile: %s" % infile
     print "Outfile: %s" % outfile
 
