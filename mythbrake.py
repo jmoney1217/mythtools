@@ -195,6 +195,9 @@ def runjob(jobid=None, chanid=None, starttime=None):
                      '> "%s"' % commflag_log_file)
 	print 'Rebuilding seek table...done'
 
+    isize = os.path.getsize(infile)
+    osize = os.path.getsize(outfile)
+
     print 'Removing original files...'
     if jobid:
             job.update({'status':4, 'comment':'Removing original files'})
@@ -217,6 +220,7 @@ def runjob(jobid=None, chanid=None, starttime=None):
     except OSError:
         pass
 
+    print 'Size compared to original %.2f%% (%s -> %s)' % (100*osize/isize, isize, osize)
     print 'Job Done!'
     if jobid:
         job.update({'status':272, 'comment':'Transcode Completed'})
