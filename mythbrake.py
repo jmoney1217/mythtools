@@ -119,7 +119,7 @@ def runjob(jobid=None, chanid=None, starttime=None):
         output = task('--verbose',
                       '--format mp4',
                       '--encoder x264',
-                      '--quality 20.0',
+                      '--quality 23.0',
                       '--decomb',
                       '--crop 0:0:0:0',
                       '--x264-preset medium',
