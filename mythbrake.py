@@ -107,11 +107,11 @@ def runjob(jobid=None, chanid=None, starttime=None):
     if jobid:
         job.update({'status':4, 'comment':'Transcoding to mp4'})
 
-    # By removing the db reference we allow the MythTV database connection to close.
-    # Will re-open connection after (potentially) long transcode is complete.
-    rec = None
-    job = None
-    db = None
+    # By deleting the db reference we force the MythTV database cached connection to close.
+    # This clears MythDB.shared so that the connection after transcode has to establish a new connection
+    del rec
+    del job
+    del db
 
     task = System(path=transcoder, db=db)
     try:
