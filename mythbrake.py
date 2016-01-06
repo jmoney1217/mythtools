@@ -107,6 +107,12 @@ def runjob(jobid=None, chanid=None, starttime=None):
     if jobid:
         job.update({'status':4, 'comment':'Transcoding to mp4'})
 
+    # By removing the db reference we allow the MythTV database connection to close.
+    # Will re-open connection after (potentially) long transcode is complete.
+    rec = None
+    job = None
+    db = None
+
     task = System(path=transcoder, db=db)
     try:
 	print 'Transcoding...'
@@ -136,9 +142,20 @@ def runjob(jobid=None, chanid=None, starttime=None):
     except MythError, e:
         print 'Error: Command failed with output:\n%s' % e.stderr
         if jobid:
+            db = MythDB()
+            job = Job(jobid, db=db)
             job.update({'status':304, 'comment':'Transcoding to mp4 failed'})
         sys.exit(e.retcode)
     print 'Transcoding...done'
+
+    # Re-establish our connection to the MythTV database after the
+    # (potentially) long transcode above.
+    db = MythDB()
+    if jobid:
+        job = Job(jobid, db=db)
+        chanid = job.chanid
+        starttime = job.starttime
+    rec = Recorded((chanid, starttime), db=db)
 
     if not os.path.isfile(outfile):
         print 'Error: Transcoded file (%s) not found!' % outfile
