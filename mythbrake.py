@@ -158,10 +158,14 @@ def runjob(jobid=None, chanid=None, starttime=None):
     rec = Recorded((chanid, starttime), db=db)
 
     if not os.path.isfile(outfile):
+        if jobid:
+            job.update({'status':304, 'comment':'Transcoded file not found'})
         print 'Error: Transcoded file (%s) not found!' % outfile
         sys.exit(2)
 
     print 'Updating recording in MythTV DB, set transcoded'
+    if jobid:
+        job.update({'status':4, 'comment':'Updating database'})
     rec.basename = os.path.basename(outfile)
     rec.filesize = os.path.getsize(outfile)
     rec.transcoded = 1
@@ -172,6 +176,8 @@ def runjob(jobid=None, chanid=None, starttime=None):
 
     if flush_commskip:
         print 'Flushing commskip list'
+        if jobid:
+            job.update({'status':4, 'comment':'Flushing commskip'})
         for index,mark in reversed(list(enumerate(rec.markup))):
             if mark.type in (rec.markup.MARK_COMM_START, rec.markup.MARK_COMM_END):
                 del rec.markup[index]
@@ -180,11 +186,10 @@ def runjob(jobid=None, chanid=None, starttime=None):
         rec.markup.commit()
         rec.update()
 
-    if jobid:
-        job.update({'status':4, 'comment':'Rebuilding seektable'})
-
     if build_seektable:
         print 'Rebuilding seek table...'
+        if jobid:
+            job.update({'status':4, 'comment':'Rebuilding seektable'})
         task = System(path='mythcommflag')
         task.command('--chanid %s' % chanid,
                      '--starttime %s' % starttime,
@@ -193,6 +198,8 @@ def runjob(jobid=None, chanid=None, starttime=None):
 	print 'Rebuilding seek table...done'
 
     print 'Removing original files...'
+    if jobid:
+            job.update({'status':4, 'comment':'Removing original files'})
     try:
         print 'Deleting %s' % infile
         os.remove(infile)
