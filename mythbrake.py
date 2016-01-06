@@ -162,25 +162,6 @@ def runjob(jobid=None, chanid=None, starttime=None):
         sys.exit(2)
 
     rec.basename = os.path.basename(outfile)
-    try:
-        print 'Deleting %s' % infile
-        os.remove(infile)
-    except OSError:
-        pass
-    print '''Cleanup the old *.png files'''
-    for filename in glob('%s*.png' % infile):
-        print 'Deleting %s' % filename
-        os.remove(filename)
-    try:
-        print 'Deleting %s' % tmpfile
-        os.remove(tmpfile)
-    except OSError:
-        pass
-    try:
-        print 'Deleting %s.map' % tmpfile
-        os.remove('%s.map' % tmpfile)
-    except OSError:
-        pass
     rec.filesize = os.path.getsize(outfile)
     rec.transcoded = 1
     rec.seek.clean()
@@ -210,6 +191,26 @@ def runjob(jobid=None, chanid=None, starttime=None):
                      '--rebuild',
                      '> "%s"' % commflag_log_file)
 	print 'Rebuilding seek table...done'
+
+    print 'Removing original files...'
+    try:
+        print 'Deleting %s' % infile
+        os.remove(infile)
+    except OSError:
+        pass
+    for filename in glob('%s*.png' % infile):
+        print 'Deleting %s' % filename
+        os.remove(filename)
+    try:
+        print 'Deleting %s' % tmpfile
+        os.remove(tmpfile)
+    except OSError:
+        pass
+    try:
+        print 'Deleting %s.map' % tmpfile
+        os.remove('%s.map' % tmpfile)
+    except OSError:
+        pass
 
     print 'Job Done!'
     if jobid:
