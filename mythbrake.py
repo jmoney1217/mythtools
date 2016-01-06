@@ -161,10 +161,12 @@ def runjob(jobid=None, chanid=None, starttime=None):
         print 'Error: Transcoded file (%s) not found!' % outfile
         sys.exit(2)
 
+    print 'Updating recording in MythTV DB, set transcoded'
     rec.basename = os.path.basename(outfile)
     rec.filesize = os.path.getsize(outfile)
     rec.transcoded = 1
     rec.seek.clean()
+    rec.update()
 
     print 'Changed recording basename, set transcoded'
 
@@ -176,9 +178,7 @@ def runjob(jobid=None, chanid=None, starttime=None):
         rec.bookmark = 0
         rec.cutlist = 0
         rec.markup.commit()
-
-    print 'Updating recording in MythTV DB'
-    rec.update()
+        rec.update()
 
     if jobid:
         job.update({'status':4, 'comment':'Rebuilding seektable'})
