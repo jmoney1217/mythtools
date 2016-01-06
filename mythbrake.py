@@ -1,8 +1,9 @@
 #!/usr/bin/env python2.7
 # -*- coding: UTF-8 -*-
 
-# 2015 Michael Stucky
-# This script is based on Raymond Wagner's transcode wrapper stub.
+#
+# This scrip is based on the 2015 Michael Stucky version which is based on
+# Raymond Wagner's transcode wrapper stub.
 # Designed to be a USERJOB of the form </path to script/transcode-h264.py %JOBID%>
 
 from MythTV import Job, Recorded, System, MythDB, findfile, MythError, MythLog, datetime
@@ -101,7 +102,6 @@ def runjob(jobid=None, chanid=None, starttime=None):
     else:
 	print 'No cutlist found, skipping'
         tmpfile = infile
-        # copyfile('%s' % infile, '%s' % tmpfile)
 
     # Transcode to mp4
     if jobid:
@@ -171,8 +171,6 @@ def runjob(jobid=None, chanid=None, starttime=None):
     rec.transcoded = 1
     rec.seek.clean()
     rec.update()
-
-    print 'Changed recording basename, set transcoded'
 
     if flush_commskip:
         print 'Flushing commskip list'
