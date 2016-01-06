@@ -19,7 +19,7 @@ import re
 log_dir = '/home/mythtv/mythbrake_logs'
 transcoder = '/usr/bin/HandBrakeCLI'
 flush_commskip = True
-build_seektable = True
+build_seektable = False
 
 class tee:
     'redirects a write to multiple objects'
