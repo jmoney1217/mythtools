@@ -105,18 +105,20 @@ def runjob(jobid=None, chanid=None, starttime=None):
 
     # Transcode to mp4
     if jobid:
-        job.update({'status':4, 'comment':'Transcoding to mp4'})
+        job.update({'status':4, 'comment':'Starting transcode process'})
 
     # By deleting the db reference we force the MythTV database cached connection to close.
     # This clears MythDB.shared so that the connection after transcode has to establish a new connection
-    del rec
-    del job
-    del db
+    # Only need to do this is if there is NO jobid, otherwise the DB connection is kept alive during transcode
+    if jobid is None:
+        del rec
+        del db
+        db = None
 
     task = System(path=transcoder, db=db)
     try:
 	print 'Transcoding...'
-        output = task('--verbose',
+        p = task._runasync('--verbose',
                       '--format mp4',
                       '--encoder x264',
                       '--quality 23.0',
@@ -139,23 +141,31 @@ def runjob(jobid=None, chanid=None, starttime=None):
                       '--input "%s"' % tmpfile,
                       '--output "%s"' % outfile,
                       '>> "%s" 2>&1' % trans_log_file)
+        while (p.poll() is None):
+            time.sleep(30)
+            if jobid:
+                with open(trans_log_file) as f:
+                    lines = f.readlines()
+                    if len(lines) > 0:
+                       progress = lines[-1].rsplit('\r',1)[1]
+                job.update({'status':4, 'comment':'Transcoding (%s)' % progress})
+        if (p.poll() != 0):
+            print 'Error: Transcoding failed (%d)' % p.poll()
+            if jobid:
+                job.update({'status':304, 'comment':'Transcoding has failed (%d)' % p.poll()})
+            sys.exit(p.poll())
     except MythError, e:
         print 'Error: Command failed with output:\n%s' % e.stderr
         if jobid:
-            db = MythDB()
-            job = Job(jobid, db=db)
             job.update({'status':304, 'comment':'Transcoding to mp4 failed'})
         sys.exit(e.retcode)
     print 'Transcoding...done'
 
     # Re-establish our connection to the MythTV database after the
     # (potentially) long transcode above.
-    db = MythDB()
-    if jobid:
-        job = Job(jobid, db=db)
-        chanid = job.chanid
-        starttime = job.starttime
-    rec = Recorded((chanid, starttime), db=db)
+    if jobid is None:
+        db = MythDB()
+        rec = Recorded((chanid, starttime), db=db)
 
     if not os.path.isfile(outfile):
         if jobid:
