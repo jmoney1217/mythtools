@@ -144,10 +144,14 @@ def runjob(jobid=None, chanid=None, starttime=None):
         while (p.poll() is None):
             time.sleep(30)
             if jobid:
-                with open(trans_log_file) as f:
-                    lines = f.readlines()
-                    if len(lines) > 0:
-                       progress = lines[-1].rsplit('\r',1)[1]
+                progress = 'still working...'
+                try:
+                    with open(trans_log_file) as f:
+                        lines = f.readlines()
+                        if len(lines) > 0:
+                            progress = lines[-1].rsplit('\r',1)[1]
+                except:
+                    pass
                 job.update({'status':4, 'comment':'Transcoding (%s)' % progress})
         if (p.poll() != 0):
             print 'Error: Transcoding failed (%d)' % p.poll()
