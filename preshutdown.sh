@@ -63,6 +63,20 @@ function checkLibrarian() {
 	return 0
 }
 
+# check if there are any MythTV ative jobs
+# 1 - A MythTV job is activily running, don't shut down
+# 0 - There are no active jobs, OK to shut down
+function checkActiveJobs() {
+	python /home/mythtv/bin/preshutdown.py
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		echo $DATE MythTV active job, don\'t shut down.
+		return 1
+	fi
+
+	return 0
+}
+
 # Get a date/time stamp to add to log output
 DATE=`date +%F\ %T\.%N`
 DATE=${DATE:0:23}
@@ -83,6 +97,12 @@ checkLogin
 ret=$?
 if [ $ret -ne 0 ]; then
         echo $DATE "** preshutdown blocked, user still logged in."
+        exit $ret
+fi
+checkActiveJobs
+ret=$?
+if [ $ret -ne 0 ]; then
+        echo $DATE "** preshutdown blocked, MythTV active jobs."
         exit $ret
 fi
 
