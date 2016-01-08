@@ -12,10 +12,6 @@ function checkLogin() {
 	MIN_UPTIME=10   # Minimum up time in minutes
 	# End of customizable variables
 
-	# Get a date/time stamp to add to log output
-	DATE=`date +%F\ %T\.%N`
-	DATE=${DATE:0:23}
-
 	UPTIME=`cat /proc/uptime | awk '{print int($1/60)}'`
 
 	if [ "$UPTIME" -lt "$MIN_UPTIME" ]; then
@@ -66,6 +62,10 @@ function checkLibrarian() {
 
 	return 0
 }
+
+# Get a date/time stamp to add to log output
+DATE=`date +%F\ %T\.%N`
+DATE=${DATE:0:23}
 
 checkTranscode
 ret=$?
