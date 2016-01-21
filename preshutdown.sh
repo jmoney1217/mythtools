@@ -63,6 +63,19 @@ function checkLibrarian() {
 	return 0
 }
 
+# check to see if backuppc is running
+# 1 - A backup is in progress, don't shut down.
+# 0 - No backups is in pogress, OK to shut down.
+function checkBackupPC() {
+	a=$(pidof -x BackupPC_dump BackupPC_link BackupPC_nightly BackupPC_tarExtract)
+	if [ -n "$a" ]; then
+		echo $DATE backup in progress, don\'t shut down.
+		return 1
+	fi
+
+	return 0
+}
+
 # check if there are any MythTV ative jobs
 # 1 - A MythTV job is activily running, don't shut down
 # 0 - There are no active jobs, OK to shut down
@@ -110,6 +123,14 @@ checkActiveJobs
 ret=$?
 if [ $ret -ne 0 ]; then
         echo $DATE "** preshutdown blocked, MythTV active jobs."
+        if [ $DEBUG -ne 1 ]; then
+                exit $ret
+        fi
+fi
+checkBackupPC
+ret=$?
+if [ $ret -ne 0 ]; then
+        echo $DATE "** preshutdown blocked, backuppc in progress."
         if [ $DEBUG -ne 1 ]; then
                 exit $ret
         fi
