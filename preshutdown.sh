@@ -37,19 +37,6 @@ function checkLogin() {
 	fi
 }
 
-# check to see if mythicalLibrarian is running
-# 1 - A librarian is running, don't shut down.
-# 0 - No librarian is running, OK to shut down.
-function checkLibrarian() {
-	a=$(pidof -x mythicalLibrarian)
-	if [ -n "$a" ]; then
-		echo $DATE mythicalLibrarian is running, don\'t shut down.
-		return 1
-	fi
-
-	return 0
-}
-
 # check to see if backuppc is running
 # 1 - A backup is in progress, don't shut down.
 # 0 - No backups is in pogress, OK to shut down.
@@ -82,14 +69,6 @@ DATE=`date +%F\ %T\.%N`
 DATE=${DATE:0:23}
 DEBUG=${1:-0}
 
-checkLibrarian
-ret=$?
-if [ $ret -ne 0 ]; then
-	echo $DATE "** preshutdown blocked, librarian in progress."
-        if [ $DEBUG -ne 1 ]; then
-                exit $ret
-        fi
-fi
 checkLogin
 ret=$?
 if [ $ret -ne 0 ]; then
