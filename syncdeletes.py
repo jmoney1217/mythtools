@@ -139,7 +139,7 @@ def main():
 	logging.info(" [Mythical Links][%s]" % len(listings))
 	logging.info("  - new auto-expire items: %s" % len(newExpireList))
 	for d in newExpireList:
-		logging.info( "   - %s" % d.program)
+		logging.info( "   - %s [%s]" % (d.program, d.metadata.filename))
 
 if __name__ == '__main__':
 	main()
