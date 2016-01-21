@@ -37,19 +37,6 @@ function checkLogin() {
 	fi
 }
 
-# check to see if there are any transcode jobs running
-# 1 - A transcode job is running, don't shut down.
-# 0 - No transcode jobs running, OK to shut down.
-function checkTranscode() {
-	a=$(pidof -x mythbrake.sh)
-	if [ -n "$a" ]; then
-		echo $DATE mythbrake transcode running, don\'t shut down.
-		return 1
-	fi
-
-	return 0
-}
-
 # check to see if mythicalLibrarian is running
 # 1 - A librarian is running, don't shut down.
 # 0 - No librarian is running, OK to shut down.
@@ -95,14 +82,6 @@ DATE=`date +%F\ %T\.%N`
 DATE=${DATE:0:23}
 DEBUG=${1:-0}
 
-checkTranscode
-ret=$?
-if [ $ret -ne 0 ]; then
-	echo $DATE "** preshutdown blocked, transcode in progress."
-        if [ $DEBUG -ne 1 ]; then
-                exit $ret
-        fi
-fi
 checkLibrarian
 ret=$?
 if [ $ret -ne 0 ]; then
