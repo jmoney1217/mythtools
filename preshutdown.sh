@@ -80,30 +80,39 @@ function checkActiveJobs() {
 # Get a date/time stamp to add to log output
 DATE=`date +%F\ %T\.%N`
 DATE=${DATE:0:23}
+DEBUG=${1:-0}
 
 checkTranscode
 ret=$?
 if [ $ret -ne 0 ]; then
 	echo $DATE "** preshutdown blocked, transcode in progress."
-	exit $ret
+        if [ $DEBUG -ne 1 ]; then
+                exit $ret
+        fi
 fi
 checkLibrarian
 ret=$?
 if [ $ret -ne 0 ]; then
 	echo $DATE "** preshutdown blocked, librarian in progress."
-	exit $ret
+        if [ $DEBUG -ne 1 ]; then
+                exit $ret
+        fi
 fi
 checkLogin
 ret=$?
 if [ $ret -ne 0 ]; then
         echo $DATE "** preshutdown blocked, user still logged in."
-        exit $ret
+        if [ $DEBUG -ne 1 ]; then
+                exit $ret
+        fi
 fi
 checkActiveJobs
 ret=$?
 if [ $ret -ne 0 ]; then
         echo $DATE "** preshutdown blocked, MythTV active jobs."
-        exit $ret
+        if [ $DEBUG -ne 1 ]; then
+                exit $ret
+        fi
 fi
 
 exit 0
