@@ -67,32 +67,28 @@ function checkActiveJobs() {
 # Get a date/time stamp to add to log output
 DATE=`date +%F\ %T\.%N`
 DATE=${DATE:0:23}
-DEBUG=${1:-0}
+result=0
 
 checkLogin
 ret=$?
+let "result+=$ret"
 if [ $ret -ne 0 ]; then
         echo $DATE "** preshutdown blocked, user still logged in."
-        if [ $DEBUG -ne 1 ]; then
-                exit $ret
-        fi
 fi
 checkActiveJobs
 ret=$?
+let "result<<=1"
+let "result+=$ret"
 if [ $ret -ne 0 ]; then
         echo $DATE "** preshutdown blocked, MythTV active jobs."
-        if [ $DEBUG -ne 1 ]; then
-                exit $ret
-        fi
 fi
 checkBackupPC
 ret=$?
+let "result<<=1"
+let "result+=$ret"
 if [ $ret -ne 0 ]; then
         echo $DATE "** preshutdown blocked, backuppc in progress."
-        if [ $DEBUG -ne 1 ]; then
-                exit $ret
-        fi
 fi
 
-exit 0
+exit $result
 
