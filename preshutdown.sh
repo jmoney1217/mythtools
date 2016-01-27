@@ -16,7 +16,7 @@ function checkLogin() {
 
 	if [ "$UPTIME" -lt "$MIN_UPTIME" ]; then
 		echo $DATE Machine uptime less than $MIN_UPTIME minutes, don\'t shut down.
-		return 2
+		return 1
 	fi
 
 	# Some configurations ( at least lxdm + xfce4) do not report GUI-logged-on users
